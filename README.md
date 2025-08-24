@@ -1,190 +1,273 @@
-Of course. A good README is essential for any project. Here is a comprehensive README.md file that explains the purpose, setup, and usage of your automated outreach system.
+# AI Company Automation Toolkit
 
-AI Startup Outreach Automator
+A comprehensive Python toolkit for automating the process of finding AI companies, scraping their contact information, and sending professional outreach emails. This toolkit is designed for job seekers, business development professionals, and anyone looking to network within the AI industry.
 
-This project is a semi-automated pipeline designed to identify, scrape contact information for, and send personalized outreach emails to AI startups. The system is built with three Python scripts that work together to manage the entire workflow, from URL discovery to final email dispatch, while ensuring no company is contacted more than once.
+## Features
 
-Features
+- **Web Scraping with Cloudflare Bypass**: Advanced scraping techniques to extract AI company URLs from directories
+- **Contact Information Extraction**: Automatically finds email addresses from company websites
+- **Batch Email Sending**: Professional email automation with resume attachments
+- **Progress Tracking**: CSV-based system to track scraping and email sending status
+- **Error Handling**: Robust error handling and retry mechanisms
+- **Rate Limiting**: Built-in delays to respect website policies and avoid spam filters
 
-Web Scraping: Uses Selenium to scrape company URLs from a directory website (theresanaiforthat.com), handling basic anti-bot measures.
+## Project Structure
 
-Email Extraction: Parses company websites to find publicly available email addresses.
+```
+├── ai_url_scraper.py          # Main scraper for AI company URLs
+├── scrape_and_prepare_csv.py  # Email extraction and CSV preparation
+├── sendmail_final.py          # Email automation system
+├── .env                       # Environment variables (create this)
+├── resume.pdf                 # Your resume file (add this)
+├── ai_company_urls.txt        # Generated list of company URLs
+└── companies.csv              # Main database with company information
+```
 
-Duplicate Prevention: Maintains a master companies.csv file to track all processed companies and prevent re-scraping or sending duplicate emails.
+## Table of Contents
 
-Status Tracking: Each company in the CSV is assigned a status (unsent, sent, failed, no_email_found) for clear visibility into the outreach campaign.
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Gmail Setup](#gmail-setup)
+- [Usage](#usage)
+- [Configuration Options](#configuration-options)
+- [CSV Structure](#csv-structure)
+- [Email Template](#email-template)
+- [Safety and Ethics](#safety-and-ethics)
+- [Troubleshooting](#troubleshooting)
+- [Legal and Ethical Considerations](#legal-and-ethical-considerations)
 
-Batched & Throttled Emailing: Sends emails in configurable batches (e.g., 50 per day) with a delay between each to avoid being flagged as spam.
+## Prerequisites
 
-Secure Credential Management: Uses a .env file to securely store email login credentials.
+- Python 3.7 or higher
+- Chrome browser installed
+- ChromeDriver (automatically managed by selenium)
+- Gmail account with App Password enabled
 
-Automated Resume Attachment: Automatically attaches your resume to every outgoing email.
+## Installation
 
-Workflow
+1. **Clone this repository:**
+   ```bash
+   git clone <repository-url>
+   cd ai-company-automation-toolkit
+   ```
 
-The process is broken down into three simple steps:
+2. **Install required packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+   Or install individually:
+   ```bash
+   pip install selenium beautifulsoup4 pandas requests-html python-dotenv
+   ```
 
-Scrape URLs: You run the first script (ai_url_scraper.py), which opens a browser and navigates to the target website. You manually solve a CAPTCHA, and the script then scrapes hundreds of AI company URLs, cleans them, and saves them to ai_company_urls.txt.
+3. **Create environment file:**
+   Create a `.env` file in the project root directory:
+   ```env
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASS=your_gmail_app_password
+   ```
 
-Gather Emails: The second script (scrape_and_prepare_csv.py) reads the new URLs from the text file, scrapes each website for email addresses, and appends the new company data to the master companies.csv file with an initial status of "unsent".
+4. **Add your resume:**
+   Place your resume file as `resume.pdf` in the project directory
 
-Send Emails: The final script (sendmail_final.py) reads the companies.csv file, finds up to 50 companies with the "unsent" status, sends them a personalized email with your resume, and updates their status to "sent" or "failed".
+## Gmail Setup
 
-Prerequisites
+To enable email functionality with Gmail:
 
-Python 3.8 or newer
+1. **Enable 2-Factor Authentication:**
+   - Go to your Google Account settings
+   - Navigate to Security > 2-Step Verification
+   - Enable 2FA if not already enabled
 
-pip (Python package installer)
+2. **Generate App Password:**
+   - Go to Security > App passwords
+   - Select "Mail" as the app
+   - Generate a 16-character app password
 
-Google Chrome browser installed
+3. **Update .env file:**
+   - Use your Gmail address for `EMAIL_USER`
+   - Use the generated app password (not your regular password) for `EMAIL_PASS`
 
-ChromeDriver matching your Chrome version (Selenium needs this to control the browser). Make sure it's accessible in your system's PATH.
+> **Note:** Regular Gmail passwords will not work. You must use an App Password.
 
-Setup & Installation
+## Usage
 
-Clone the Repository
+### Step 1: Scrape AI Company URLs
 
-code
-Bash
-download
-content_copy
-expand_less
-
-git clone <your-repository-url>
-cd <your-repository-directory>
-
-Create a Virtual Environment (Recommended)
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-
-Install Dependencies
-Create a file named requirements.txt with the following content:
-
-code
-Txt
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-selenium
-beautifulsoup4
-requests-html
-pandas
-python-dotenv
-
-Then, install the packages:
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-pip install -r requirements.txt
-
-Set Up Environment Variables
-Create a file named .env in the root directory. This will store your email credentials securely.
-Important: For Gmail, you must use an App Password, not your regular login password. Learn how to create one here.
-
-code
-Env
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
-# .env file
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_16_digit_app_password
-
-Add Your Resume
-Place your resume file (e.g., resume.pdf) in the root project directory. Ensure the filename matches the RESUME_FILE variable in sendmail_final.py.
-
-Usage Guide
-
-Execute the scripts in the following order.
-
-Step 1: Scrape Company URLs
-
-This is the only manual step. Run the script and follow the on-screen prompt.
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
+```bash
 python ai_url_scraper.py
+```
 
-Selenium will open a Chrome browser window.
+**What this does:**
+- Navigates to AI company directories (currently targets TheresAnAIForThat.com)
+- Implements Cloudflare bypass techniques
+- Extracts company URLs using multiple methods
+- Filters out non-company domains (social media, etc.)
+- Saves results to `ai_company_urls.txt`
 
-You must manually solve the "I am not a robot" CAPTCHA in the browser.
+**Expected output:** A text file containing 500+ unique AI company URLs
 
-Once solved, go back to your terminal and press Enter.
+---
 
-The script will then scrape the URLs and create a clean ai_company_urls.txt file.
+### Step 2: Extract Contact Information
 
-Step 2: Scrape Emails and Prepare CSV
-
-This script reads the new URLs and populates the master tracking file.
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
+```bash
 python scrape_and_prepare_csv.py
+```
 
-It reads ai_company_urls.txt.
+**What this does:**
+- Reads URLs from `ai_company_urls.txt`
+- Visits each company website
+- Extracts email addresses using regex patterns
+- Captures company names and page titles
+- Creates or updates `companies.csv` with status tracking
+- Skips already processed URLs to allow resuming
 
-It checks companies.csv to avoid processing duplicates.
+**Expected output:** A CSV file with company data and email addresses
 
-It scrapes each new website for emails and adds the results to companies.csv.
+---
 
-Step 3: Send Emails in Batches
+### Step 3: Send Professional Emails
 
-This script performs the daily email outreach. You can run this script once a day.
-
-code
-Bash
-download
-content_copy
-expand_less
-IGNORE_WHEN_COPYING_START
-IGNORE_WHEN_COPYING_END
+```bash
 python sendmail_final.py
+```
 
-It reads companies.csv and finds the first 50 entries with the status "unsent".
+**What this does:**
+- Processes companies with "unsent" status from CSV
+- Sends personalized emails with resume attachments
+- Implements rate limiting (10-second delays between emails)
+- Updates status in CSV after each attempt
+- Handles up to 50 emails per batch by default
 
-It sends a personalized email with your resume attached to each one.
+**Expected output:** Professional emails sent to AI companies with status tracking
 
-It updates the status for each email to "sent" or "failed".
+## Configuration Options
 
-File Descriptions
+### ai_url_scraper.py
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `max_urls` | 500 | Maximum number of URLs to scrape |
+| Chrome options | Various | Browser configuration for stealth mode |
 
-ai_url_scraper.py: Scrapes company URLs from the source website. Requires manual CAPTCHA solving.
+### scrape_and_prepare_csv.py
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| Timeout | 20 seconds | Web request timeout |
+| Email regex | Built-in | Pattern for email extraction |
 
-scrape_and_prepare_csv.py: The core data processing script. It scrapes emails for new URLs and updates the master CSV.
+### sendmail_final.py
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `EMAIL_BATCH_SIZE` | 50 | Emails sent per execution |
+| `DELAY_BETWEEN_EMAILS` | 10 seconds | Delay between each email |
+| `RESUME_FILE` | "resume.pdf" | Resume attachment filename |
 
-sendmail_final.py: The email sending module. Reads the CSV and sends emails in batches.
+## CSV Structure
 
-companies.csv: The master database. This is the single source of truth for which companies have been scraped and contacted.
+The `companies.csv` file maintains the following structure:
 
-ai_company_urls.txt: A temporary file holding the URLs scraped in Step 1.
+| Column | Type | Description |
+|--------|------|-------------|
+| **Company** | String | Extracted company name from URL |
+| **Website** | String | Company website URL |
+| **Title** | String | Website page title |
+| **Emails** | String | Comma-separated email addresses |
+| **Status** | String | Processing status (see below) |
 
-.env: A private file for storing your email credentials. Do not commit this file to Git.
+### Status Values
+- `unsent`: Ready to send email
+- `sent`: Email successfully sent
+- `failed`: Email sending failed
+- `no_email_found`: No email addresses found on website
+- `scraping_failed`: Website scraping encountered errors
 
-requirements.txt: A list of the required Python packages for the project.
+## Email Template
+
+The default email template includes:
+- Professional subject line with company name
+- Introduction mentioning current role at SimPPL
+- Interest in career opportunities
+- Resume attachment
+- Professional closing
+
+You can customize the email content by modifying the `create_message()` function in `sendmail_final.py`.
+
+## Safety and Ethics
+
+- **Rate Limiting**: Built-in delays prevent overwhelming target servers
+- **Respectful Scraping**: Uses appropriate headers and follows robots.txt guidelines
+- **Error Handling**: Gracefully handles failures without crashing
+- **Status Tracking**: Prevents duplicate emails and allows for resume functionality
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Cloudflare Protection
+**Problem:** Scraper gets blocked by Cloudflare
+**Solutions:**
+- Run the script at different times of day
+- Modify user agent strings in the code
+- Try the requests fallback method built into the scraper
+
+#### Gmail Authentication Errors
+**Problem:** `SMTPAuthenticationError` when sending emails
+**Solutions:**
+- Verify you're using an App Password, not your regular password
+- Ensure 2-Factor Authentication is enabled on your Google account
+- Check that EMAIL_USER and EMAIL_PASS are correctly set in `.env`
+
+#### No Emails Found
+**Problem:** Many companies show "no_email_found" status
+**Explanation:** Some websites don't publicly display email addresses
+**Solutions:**
+- This is expected behavior for privacy-conscious websites
+- Focus on companies where emails were successfully found
+
+#### Selenium WebDriver Issues
+**Problem:** Browser automation fails
+**Solutions:**
+- Ensure Chrome browser is installed and updated
+- ChromeDriver is managed automatically by modern selenium versions
+- Try running in non-headless mode for debugging
+
+#### File Not Found Errors
+**Problem:** Script can't find required files
+**Solutions:**
+- Ensure `resume.pdf` exists in the project directory
+- Run scripts in the correct order (URL scraper first)
+- Check that all Python files are in the same directory
+
+### Error Messages Reference
+
+| Error Message | Cause | Solution |
+|---------------|--------|----------|
+| `"EMAIL_USER and EMAIL_PASS must be set"` | Missing environment variables | Check your `.env` file configuration |
+| `"Resume file not found"` | Missing resume file | Add `resume.pdf` to project directory |
+| `"No new URLs to scrape"` | All URLs processed | Normal - indicates completion |
+| `"Cloudflare challenge timeout"` | Website protection | Retry at different time |
+| `"SMTPAuthenticationError"` | Invalid Gmail credentials | Use App Password, not regular password |
+
+## Legal and Ethical Considerations
+
+- This tool is designed for legitimate professional networking and job searching
+- Always respect website terms of service and robots.txt files
+- Use reasonable delays between requests
+- Only send professional, relevant communications
+- Comply with applicable laws and regulations regarding automated communications
+
+## Contributing
+
+To improve this toolkit:
+1. Test with different AI company directories
+2. Enhance email extraction patterns
+3. Add support for additional email providers
+4. Improve error handling and logging
+
+## License
+
+This project is provided as-is for educational and professional networking purposes. Users are responsible for ensuring their usage complies with applicable laws and website terms of service.
